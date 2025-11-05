@@ -1,0 +1,31 @@
+{
+  "name": "mass-spring-viz",
+  "version": "0.1.0",
+  "description": "Educational interactive visualization of mass-spring-damper systems",
+  "type": "module",
+  "main": "src/MassSpringViz.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  },
+  "keywords": [
+    "physics",
+    "simulation",
+    "education",
+    "mass-spring",
+    "ODE"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/ui": "^1.0.4",
+    "vite": "^5.0.8",
+    "vitest": "^1.0.4"
+  },
+  "dependencies": {}
+}
