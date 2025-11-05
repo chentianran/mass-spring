@@ -5,8 +5,9 @@ An educational physics simulation tool for teaching mass-spring-damper systems.
 ## Project Status
 
 **Phase 1: Physics Engine - COMPLETE ✓**
+**Phase 2: Spring Animation Rendering - COMPLETE ✓**
 
-The core physics engine is fully implemented, tested, and validated with 40 passing tests.
+The physics engine and spring animation are fully implemented, tested, and validated with 79 passing tests.
 
 ## What's Been Implemented
 
@@ -37,9 +38,45 @@ The core physics engine is fully implemented, tested, and validated with 40 pass
    - System property calculations (natural frequency, damping ratio, etc.)
    - Energy calculation for validation
 
+### Rendering Layer (Layer 2)
+
+#### SpringAnimator (`src/rendering/SpringAnimator.js`)
+
+Canvas-based visual representation of the spring-mass system:
+
+**Visual Elements:**
+- **Animated Spring**: Coils that compress/extend based on displacement
+- **Mass Block**: Rectangular mass with shadow for depth
+- **Anchor Point**: Fixed ceiling with hatching pattern
+- **Equilibrium Line**: Dashed reference line showing rest position
+- **Velocity Vector**: Green arrow showing current velocity direction/magnitude
+- **Info Display**: Real-time position and velocity values
+
+**Key Features:**
+- **Stateless Design**: Takes physics state as input, no internal state
+- **Coordinate Mapping**: Converts physics units (meters) to canvas pixels
+- **Configurable**: Colors, sizes, scale factor all customizable
+- **Deterministic**: Same state always produces identical rendering
+
+**Testing Approach:**
+- Mock canvas context tracks all drawing operations
+- Verifies correct method calls and coordinates
+- Tests determinism and statelessness
+- Edge case validation (extreme positions, velocities)
+
+### Interactive Demo
+
+**`spring-demo.html`** - Full-featured interactive visualization:
+- Real-time parameter sliders (mass, damping, spring constant)
+- Preset scenarios (SHM, underdamped, critical, overdamped)
+- Live system property display
+- Smooth 60 FPS animation
+
+Run with: `npm run dev` and open browser to localhost
+
 ### Test Suite
 
-**40 comprehensive tests across 3 test files:**
+**79 comprehensive tests across 4 test files:**
 
 1. **Physics Validation Tests** (`tests/physics.test.js`) - 22 tests
    - Simple Harmonic Motion validation against analytical solutions
@@ -56,11 +93,17 @@ The core physics engine is fully implemented, tested, and validated with 40 pass
    - Energy conservation comparison
 
 3. **Edge Cases Tests** (`tests/edge-cases.test.js`) - 15 tests
-   - Extreme parameter values
-   - Boundary conditions
+   - Extreme parameter values, boundary conditions
    - Initial condition variations
-   - Forcing function edge cases
-   - System property calculations
+   - Forcing function edge cases, system property calculations
+
+4. **Rendering Tests** (`tests/rendering.test.js`) - 39 tests
+   - Canvas coordinate mapping
+   - Drawing operations and determinism
+   - Spring, mass, anchor rendering
+   - Velocity vector display
+   - Statelessness verification
+   - Edge case handling
 
 ## Physics Validation
 
@@ -225,15 +268,23 @@ Higher Q → sharper resonance peak
 
 ```
 mass-spring/
+├── index.html                    # Demo launcher page
+├── spring-demo.html              # Interactive spring animation demo
+├── demo.js                       # Physics engine CLI demo
 ├── src/
-│   └── physics/
-│       ├── MassSpringSystem.js   # Core physics engine
-│       ├── integrators.js        # RK4 numerical integrator
-│       └── forcingFunctions.js   # Preset forcing functions
+│   ├── physics/
+│   │   ├── MassSpringSystem.js   # Core physics engine
+│   │   ├── integrators.js        # RK4 numerical integrator
+│   │   └── forcingFunctions.js   # Preset forcing functions
+│   └── rendering/
+│       └── SpringAnimator.js     # Canvas-based spring animation
 ├── tests/
 │   ├── physics.test.js           # Main physics validation tests
 │   ├── integrator-comparison.test.js  # RK4 vs Euler comparison
-│   └── edge-cases.test.js        # Edge cases and special scenarios
+│   ├── edge-cases.test.js        # Edge cases and special scenarios
+│   ├── rendering.test.js         # Canvas rendering tests
+│   └── helpers/
+│       └── MockCanvas.js         # Mock canvas context for testing
 ├── package.json                  # Dependencies and scripts
 ├── vite.config.js                # Build and test configuration
 ├── DESIGN.md                     # Detailed system design
@@ -245,9 +296,9 @@ mass-spring/
 
 The following layers remain to be implemented:
 
-1. **Rendering Layer** (Layer 2)
-   - Canvas-based spring animation
+1. **Graph Plotter** (Layer 2 - partial)
    - Position vs. time graph plotter
+   - Real-time scrolling graph
 
 2. **UI Controls** (Layer 3)
    - Parameter sliders

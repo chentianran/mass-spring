@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spring Animation Demo - Mass-Spring System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 2em;
+    }
+
+    .header p {
+      margin: 0;
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .content {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .canvas-container {
+      flex: 1;
+      min-width: 400px;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    canvas {
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      background: white;
+    }
+
+    .controls {
+      flex: 1;
+      min-width: 300px;
+      padding: 30px;
+    }
+
+    .control-group {
+      margin-bottom: 25px;
+    }
+
+    .control-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 0.95em;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #dee2e6;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .control-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+    }
+
+    .control-group input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      border: none;
+    }
+
+    .value-display {
+      display: inline-block;
+      margin-left: 10px;
+      color: #667eea;
+      font-weight: 600;
+      min-width: 60px;
+    }
+
+    .scenario-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .scenario-btn {
+      padding: 12px 20px;
+      border: 2px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.9em;
+    }
+
+    .scenario-btn:hover {
+      background: #667eea;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .scenario-btn:active {
+      transform: translateY(0);
+    }
+
+    .info-panel {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 0.9em;
+    }
+
+    .info-panel h3 {
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      font-size: 1em;
+    }
+
+    .info-panel p {
+      margin: 5px 0;
+      color: #6c757d;
+    }
+
+    .info-panel .value {
+      color: #667eea;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌀 Spring Animation Demo</h1>
+      <p>Interactive Mass-Spring-Damper System Visualization</p>
+    </div>
+
+    <div class="content">
+      <div class="canvas-container">
+        <canvas id="springCanvas" width="400" height="600"></canvas>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label>
+            Mass (m):
+            <span class="value-display" id="mass-value">1.00 kg</span>
+          </label>
+          <input type="range" id="mass-slider" min="0.1" max="5" step="0.1" value="1">
+        </div>
+
+        <div class="control-group">
+          <label>
+            Damping (b):
+            <span class="value-display" id="damping-value">0.10 N·s/m</span>
+          </label>
+          <input type="range" id="damping-slider" min="0" max="2" step="0.05" value="0.1">
+        </div>
+
+        <div class="control-group">
+          <label>
+            Spring Constant (k):
+            <span class="value-display" id="spring-value">1.00 N/m</span>
+          </label>
+          <input type="range" id="spring-slider" min="0.1" max="5" step="0.1" value="1">
+        </div>
+
+        <div class="scenario-buttons">
+          <button class="scenario-btn" onclick="setScenario('shm')">Simple Harmonic</button>
+          <button class="scenario-btn" onclick="setScenario('underdamped')">Underdamped</button>
+          <button class="scenario-btn" onclick="setScenario('critical')">Critical Damping</button>
+          <button class="scenario-btn" onclick="setScenario('overdamped')">Overdamped</button>
+        </div>
+
+        <div class="info-panel">
+          <h3>System Properties</h3>
+          <p>Natural Frequency: <span class="value" id="freq-display">0.159 Hz</span></p>
+          <p>Damping Regime: <span class="value" id="regime-display">underdamped</span></p>
+          <p>Damping Ratio (ζ): <span class="value" id="zeta-display">0.100</span></p>
+          <p>Quality Factor (Q): <span class="value" id="q-display">5.00</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { MassSpringSystem } from './src/physics/MassSpringSystem.js';
+    import { SpringAnimator } from './src/rendering/SpringAnimator.js';
+
+    // Get canvas and context
+    const canvas = document.getElementById('springCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Create physics system
+    const system = new MassSpringSystem({
+      m: 1.0,
+      b: 0.1,
+      k: 1.0,
+      y0: 1.0,
+      v0: 0.0
+    });
+
+    // Create animator
+    const animator = new SpringAnimator({
+      width: 400,
+      height: 600
+    });
+
+    // Get controls
+    const massSlider = document.getElementById('mass-slider');
+    const dampingSlider = document.getElementById('damping-slider');
+    const springSlider = document.getElementById('spring-slider');
+
+    // Update displays
+    function updateDisplays() {
+      document.getElementById('mass-value').textContent = massSlider.value + ' kg';
+      document.getElementById('damping-value').textContent = parseFloat(dampingSlider.value).toFixed(2) + ' N·s/m';
+      document.getElementById('spring-value').textContent = springSlider.value + ' N/m';
+
+      const props = system.getSystemProperties();
+      document.getElementById('freq-display').textContent = props.f0.toFixed(3) + ' Hz';
+      document.getElementById('regime-display').textContent = props.regime;
+      document.getElementById('zeta-display').textContent = props.zeta.toFixed(3);
+      document.getElementById('q-display').textContent = props.Q.toFixed(2);
+    }
+
+    // Update system parameters
+    function updateParameters() {
+      system.setParameters({
+        m: parseFloat(massSlider.value),
+        b: parseFloat(dampingSlider.value),
+        k: parseFloat(springSlider.value)
+      });
+      updateDisplays();
+    }
+
+    // Scenario presets
+    window.setScenario = function(scenario) {
+      switch (scenario) {
+        case 'shm':
+          massSlider.value = 1.0;
+          dampingSlider.value = 0.0;
+          springSlider.value = 1.0;
+          break;
+        case 'underdamped':
+          massSlider.value = 1.0;
+          dampingSlider.value = 0.2;
+          springSlider.value = 1.0;
+          break;
+        case 'critical':
+          massSlider.value = 1.0;
+          dampingSlider.value = 2.0;
+          springSlider.value = 1.0;
+          break;
+        case 'overdamped':
+          massSlider.value = 1.0;
+          dampingSlider.value = 5.0;
+          springSlider.value = 1.0;
+          break;
+      }
+      system.reset();
+      system.setParameters({
+        m: parseFloat(massSlider.value),
+        b: parseFloat(dampingSlider.value),
+        k: parseFloat(springSlider.value)
+      });
+      updateDisplays();
+    };
+
+    // Event listeners
+    massSlider.addEventListener('input', () => {
+      updateParameters();
+    });
+
+    dampingSlider.addEventListener('input', () => {
+      updateParameters();
+    });
+
+    springSlider.addEventListener('input', () => {
+      updateParameters();
+    });
+
+    // Animation loop
+    const dt = 0.016; // 60 FPS
+    let lastTime = performance.now();
+
+    function animate(currentTime) {
+      const elapsed = currentTime - lastTime;
+
+      if (elapsed >= 16) { // ~60 FPS
+        // Step physics
+        const state = system.step(dt);
+
+        // Render
+        animator.draw(ctx, state);
+
+        lastTime = currentTime;
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    // Initial display
+    updateDisplays();
+
+    // Start animation
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
