@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mass-Spring Visualization - Demos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: white;
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .demo-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .demo-card {
+      background: white;
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .demo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .demo-card h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.5em;
+    }
+
+    .demo-card p {
+      color: #6c757d;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .demo-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .demo-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .status {
+      background: #d4edda;
+      color: #155724;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status.warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .emoji {
+      font-size: 1.3em;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌀 Mass-Spring System Visualization</h1>
+
+    <div class="status">
+      <span class="emoji">✅</span>
+      Physics Engine: Fully Implemented & Tested (40 tests passing)
+    </div>
+
+    <div class="status">
+      <span class="emoji">✅</span>
+      Spring Animation: Fully Implemented & Tested (39 tests passing)
+    </div>
+
+    <div class="demo-grid">
+      <div class="demo-card">
+        <h2>🎨 Spring Animation Demo</h2>
+        <p>
+          Interactive visualization of the spring-mass-damper system with real-time
+          parameter controls. Watch the spring compress and extend as the mass oscillates!
+        </p>
+        <a href="spring-demo.html" class="demo-link">Launch Demo →</a>
+      </div>
+
+      <div class="demo-card">
+        <h2>📊 Physics Console Demo</h2>
+        <p>
+          Command-line demonstration of the physics engine showing Simple Harmonic Motion,
+          damped oscillations, resonance, and different damping regimes.
+        </p>
+        <p style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+          $ node demo.js
+        </p>
+      </div>
+
+      <div class="demo-card">
+        <h2>🧪 Test Suite</h2>
+        <p>
+          Comprehensive test suite with 79 tests covering physics accuracy, rendering behavior,
+          edge cases, and numerical stability.
+        </p>
+        <p style="font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 5px; font-size: 0.9em;">
+          $ npm test
+        </p>
+      </div>
+
+      <div class="demo-card">
+        <h2>📖 Documentation</h2>
+        <p>
+          Complete API documentation, design principles, and usage examples in the README.
+          Includes physics formulas and validation criteria.
+        </p>
+        <p style="margin-top: 10px; font-size: 0.9em; color: #495057;">
+          See README.md for details
+        </p>
+      </div>
+    </div>
+
+    <div style="margin-top: 40px; text-align: center; color: white;">
+      <p style="opacity: 0.9;">
+        Built with vanilla JavaScript • RK4 integration • Canvas rendering • 79 passing tests
+      </p>
+    </div>
+  </div>
+</body>
+</html>
