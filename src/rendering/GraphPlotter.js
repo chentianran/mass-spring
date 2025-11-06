@@ -248,8 +248,9 @@ export class GraphPlotter {
    * Draw the complete graph
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {Array} data - Array of {t, y} data points
+   * @param {number} initialY0 - Initial position (for setting initial vertical range)
    */
-  draw(ctx, data) {
+  draw(ctx, data, initialY0 = null) {
     this.clear(ctx);
 
     // Need at least one data point
@@ -267,10 +268,25 @@ export class GraphPlotter {
     const yValues = data.map(p => p.y);
 
     const tMin = 0; // Always start from t=0
-    const tMax = Math.max(...tValues, 1); // Minimum 1 second
+    const currentMaxT = Math.max(...tValues);
+    // Start with window of t=0 to t=5, only compress after t>5
+    const tMax = Math.max(currentMaxT, 5);
 
-    const yMin = Math.min(...yValues);
-    const yMax = Math.max(...yValues);
+    const dataYMin = Math.min(...yValues);
+    const dataYMax = Math.max(...yValues);
+
+    // Start vertical range at ±|initialY0|, only expand when needed
+    let yMin, yMax;
+    if (initialY0 !== null) {
+      const absY0 = Math.abs(initialY0);
+      // Set initial range, but expand if data goes outside
+      yMin = Math.min(dataYMin, -absY0);
+      yMax = Math.max(dataYMax, absY0);
+    } else {
+      // Fallback if no initial condition provided
+      yMin = dataYMin;
+      yMax = dataYMax;
+    }
 
     const yBounds = this.calculateNiceBounds(yMin, yMax);
 
