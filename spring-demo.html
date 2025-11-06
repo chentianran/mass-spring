@@ -58,15 +58,28 @@
       min-width: 400px;
       background: #f8f9fa;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       padding: 20px;
+      gap: 15px;
     }
 
     canvas {
       border: 2px solid #dee2e6;
       border-radius: 10px;
       background: white;
+      display: block;
+    }
+
+    #springCanvas {
+      width: 400px;
+      height: 400px;
+    }
+
+    #graphCanvas {
+      width: 400px;
+      height: 200px;
     }
 
     .controls {
@@ -212,7 +225,8 @@
 
     <div class="content">
       <div class="canvas-container">
-        <canvas id="springCanvas" width="400" height="600"></canvas>
+        <canvas id="springCanvas" width="400" height="400"></canvas>
+        <canvas id="graphCanvas" width="400" height="200"></canvas>
       </div>
 
       <div class="controls">
@@ -279,10 +293,14 @@
   <script type="module">
     import { MassSpringSystem } from './src/physics/MassSpringSystem.js';
     import { SpringAnimator } from './src/rendering/SpringAnimator.js';
+    import { GraphPlotter } from './src/rendering/GraphPlotter.js';
 
-    // Get canvas and context
-    const canvas = document.getElementById('springCanvas');
-    const ctx = canvas.getContext('2d');
+    // Get canvases and contexts
+    const springCanvas = document.getElementById('springCanvas');
+    const springCtx = springCanvas.getContext('2d');
+
+    const graphCanvas = document.getElementById('graphCanvas');
+    const graphCtx = graphCanvas.getContext('2d');
 
     // Create physics system
     const system = new MassSpringSystem({
@@ -296,13 +314,22 @@
     // Create animator with system parameters
     const animator = new SpringAnimator({
       width: 400,
-      height: 600,
+      height: 400,
       systemParams: {
         m: 1.0,
         b: 0.1,
         k: 1.0
       }
     });
+
+    // Create graph plotter
+    const grapher = new GraphPlotter({
+      width: 400,
+      height: 200
+    });
+
+    // Data storage for graph
+    let graphData = [];
 
     // Get controls
     const massSlider = document.getElementById('mass-slider');
@@ -360,6 +387,9 @@
       // Replace the system
       Object.assign(system, newSystem);
 
+      // Reset graph data
+      graphData = [];
+
       updateDisplays();
     };
 
@@ -393,6 +423,10 @@
         b: parseFloat(dampingSlider.value),
         k: parseFloat(springSlider.value)
       });
+
+      // Reset graph data
+      graphData = [];
+
       updateDisplays();
     };
 
@@ -428,8 +462,14 @@
         // Step physics
         const state = system.step(dt);
 
-        // Render
-        animator.draw(ctx, state);
+        // Add data point to graph
+        graphData.push({ t: state.t, y: state.y });
+
+        // Render spring animation
+        animator.draw(springCtx, state);
+
+        // Render graph
+        grapher.draw(graphCtx, graphData);
 
         lastTime = currentTime;
       }
