@@ -114,6 +114,39 @@ export class MockCanvasContext {
     return [...this.lineDashSegments];
   }
 
+  // Transform methods
+  save() {
+    this.record('save');
+  }
+
+  restore() {
+    this.record('restore');
+  }
+
+  translate(x, y) {
+    this.record('translate', { x, y });
+  }
+
+  rotate(angle) {
+    this.record('rotate', { angle });
+  }
+
+  scale(x, y) {
+    this.record('scale', { x, y });
+  }
+
+  transform(a, b, c, d, e, f) {
+    this.record('transform', { a, b, c, d, e, f });
+  }
+
+  setTransform(a, b, c, d, e, f) {
+    this.record('setTransform', { a, b, c, d, e, f });
+  }
+
+  resetTransform() {
+    this.record('resetTransform');
+  }
+
   // Helpers for testing
   getOperationCount(operationType) {
     return this.operations.filter(op => op.operation === operationType).length;

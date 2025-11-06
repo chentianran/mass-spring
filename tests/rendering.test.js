@@ -53,20 +53,20 @@ describe('SpringAnimator - Canvas Rendering', () => {
       expect(canvasY).toBe(300); // height/2
     });
 
-    it('should map positive displacement downward', () => {
-      const canvasY = animator.physicsToCanvasY(1.0); // 1 meter down
-      expect(canvasY).toBe(400); // 300 + 100*1
+    it('should map positive displacement upward', () => {
+      const canvasY = animator.physicsToCanvasY(1.0); // 1 meter up
+      expect(canvasY).toBe(200); // 300 - 100*1
     });
 
-    it('should map negative displacement upward', () => {
-      const canvasY = animator.physicsToCanvasY(-1.0); // 1 meter up
-      expect(canvasY).toBe(200); // 300 - 100*1
+    it('should map negative displacement downward', () => {
+      const canvasY = animator.physicsToCanvasY(-1.0); // 1 meter down
+      expect(canvasY).toBe(400); // 300 + 100*1
     });
 
     it('should scale displacement correctly', () => {
       const customAnimator = new SpringAnimator({ scale: 50 });
       const canvasY = customAnimator.physicsToCanvasY(2.0);
-      expect(canvasY).toBe(300 + 50 * 2); // equilibrium + scale * displacement
+      expect(canvasY).toBe(300 - 50 * 2); // equilibrium - scale * displacement
     });
   });
 
@@ -324,7 +324,7 @@ describe('SpringAnimator - Canvas Rendering', () => {
       expect(ops2).toBeGreaterThan(ops1);
     });
 
-    it('should draw downward arrow for positive velocity', () => {
+    it('should draw upward arrow for positive velocity', () => {
       const massY = 300;
       const velocity = 1.0;
 
@@ -332,12 +332,12 @@ describe('SpringAnimator - Canvas Rendering', () => {
 
       const lines = ctx.getOperations('lineTo');
 
-      // Should draw line going down (increasing Y)
-      const downwardLine = lines.find(l => l.y > massY);
-      expect(downwardLine).toBeDefined();
+      // Should draw line going up (decreasing Y) for positive velocity
+      const upwardLine = lines.find(l => l.y < massY);
+      expect(upwardLine).toBeDefined();
     });
 
-    it('should draw upward arrow for negative velocity', () => {
+    it('should draw downward arrow for negative velocity', () => {
       const massY = 300;
       const velocity = -1.0;
 
@@ -345,9 +345,9 @@ describe('SpringAnimator - Canvas Rendering', () => {
 
       const lines = ctx.getOperations('lineTo');
 
-      // Should draw line going up (decreasing Y)
-      const upwardLine = lines.find(l => l.y < massY);
-      expect(upwardLine).toBeDefined();
+      // Should draw line going down (increasing Y) for negative velocity
+      const downwardLine = lines.find(l => l.y > massY);
+      expect(downwardLine).toBeDefined();
     });
   });
 
@@ -392,7 +392,7 @@ describe('SpringAnimator - Canvas Rendering', () => {
 
   describe('Statistics and Analysis', () => {
     it('should detect compression correctly', () => {
-      const state = { y: -1.0, v: 0, t: 0 };
+      const state = { y: 1.0, v: 0, t: 0 }; // Positive y = above equilibrium = compressed
       const stats = animator.getStats(state);
 
       expect(stats.isCompressed).toBe(true);
@@ -401,7 +401,7 @@ describe('SpringAnimator - Canvas Rendering', () => {
     });
 
     it('should detect extension correctly', () => {
-      const state = { y: 1.0, v: 0, t: 0 };
+      const state = { y: -1.0, v: 0, t: 0 }; // Negative y = below equilibrium = extended
       const stats = animator.getStats(state);
 
       expect(stats.isCompressed).toBe(false);
@@ -420,7 +420,7 @@ describe('SpringAnimator - Canvas Rendering', () => {
       const state = { y: 0, v: 0, t: 0 };
       const stats = animator.getStats(state);
 
-      const expectedLength = animator.equilibriumY - animator.anchorY;
+      const expectedLength = Math.abs(animator.anchorY - animator.equilibriumY);
       expect(stats.springLength).toBe(expectedLength);
     });
   });
@@ -480,14 +480,14 @@ describe('SpringAnimator - Canvas Rendering', () => {
     });
 
     it('should handle negative displacement beyond equilibrium', () => {
-      const state = { y: -5.0, v: 0, t: 0 };
+      const state = { y: -5.0, v: 0, t: 0 }; // Negative = below equilibrium = extended
 
       expect(() => {
         animator.draw(ctx, state);
       }).not.toThrow();
 
       const stats = animator.getStats(state);
-      expect(stats.isCompressed).toBe(true);
+      expect(stats.isExtended).toBe(true);
     });
 
     it('should handle high velocity', () => {

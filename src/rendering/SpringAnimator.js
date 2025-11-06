@@ -21,6 +21,10 @@ export class SpringAnimator {
    * @param {string} config.springColor - Spring color (default: '#4a90e2')
    * @param {string} config.massColor - Mass color (default: '#e74c3c')
    * @param {string} config.equilibriumColor - Equilibrium line color (default: '#95a5a6')
+   * @param {Object} config.systemParams - System parameters for acceleration calculation (optional)
+   * @param {number} config.systemParams.m - Mass (kg)
+   * @param {number} config.systemParams.b - Damping coefficient (N·s/m)
+   * @param {number} config.systemParams.k - Spring constant (N/m)
    */
   constructor({
     width = 400,
@@ -31,7 +35,8 @@ export class SpringAnimator {
     massHeight = 40,
     springColor = '#4a90e2',
     massColor = '#e74c3c',
-    equilibriumColor = '#95a5a6'
+    equilibriumColor = '#95a5a6',
+    systemParams = null
   } = {}) {
     this.width = width;
     this.height = height;
@@ -42,22 +47,31 @@ export class SpringAnimator {
     this.springColor = springColor;
     this.massColor = massColor;
     this.equilibriumColor = equilibriumColor;
+    this.systemParams = systemParams; // For acceleration calculation
 
-    // Fixed anchor point at top of canvas
+    // Fixed anchor point at bottom of canvas (floor)
     this.anchorX = width / 2;
-    this.anchorY = 50;
+    this.anchorY = height - 50;
 
     // Equilibrium position (where spring is at rest)
     this.equilibriumY = height / 2;
   }
 
   /**
+   * Update system parameters (for acceleration calculation)
+   * @param {Object} params - System parameters {m, b, k}
+   */
+  setSystemParams(params) {
+    this.systemParams = params;
+  }
+
+  /**
    * Convert physics position (meters) to canvas Y coordinate
-   * @param {number} y - Position in meters (positive = down)
+   * @param {number} y - Position in meters (positive = up above equilibrium)
    * @returns {number} Canvas Y coordinate in pixels
    */
   physicsToCanvasY(y) {
-    return this.equilibriumY + y * this.scale;
+    return this.equilibriumY - y * this.scale;
   }
 
   /**
@@ -126,14 +140,14 @@ export class SpringAnimator {
   }
 
   /**
-   * Draw the anchor point at the top
+   * Draw the anchor point at the bottom (floor)
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    */
   drawAnchor(ctx) {
     const x = this.anchorX;
     const y = this.anchorY;
 
-    // Draw ceiling/wall
+    // Draw floor
     ctx.strokeStyle = '#34495e';
     ctx.lineWidth = 4;
     ctx.beginPath();
@@ -141,12 +155,12 @@ export class SpringAnimator {
     ctx.lineTo(x + 40, y);
     ctx.stroke();
 
-    // Draw hatching to indicate fixed surface
+    // Draw hatching to indicate fixed surface (below the floor line)
     ctx.lineWidth = 2;
     for (let i = -40; i <= 40; i += 10) {
       ctx.beginPath();
       ctx.moveTo(x + i, y);
-      ctx.lineTo(x + i - 5, y - 8);
+      ctx.lineTo(x + i - 5, y + 8); // Flip to +8 for floor
       ctx.stroke();
     }
 
@@ -207,14 +221,14 @@ export class SpringAnimator {
    * Draw velocity vector arrow
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {number} massY - Mass center Y in canvas coordinates
-   * @param {number} velocity - Velocity in m/s
+   * @param {number} velocity - Velocity in m/s (positive = upward)
    */
   drawVelocityVector(ctx, massY, velocity) {
     if (Math.abs(velocity) < 0.01) return; // Don't draw tiny velocities
 
     const x = this.anchorX + this.massWidth / 2 + 20;
     const arrowLength = Math.min(Math.abs(velocity) * 30, 100);
-    const direction = velocity > 0 ? 1 : -1;
+    const direction = velocity > 0 ? -1 : 1; // Flip: positive velocity = up (decreasing Y)
 
     ctx.strokeStyle = '#27ae60';
     ctx.fillStyle = '#27ae60';
@@ -242,6 +256,44 @@ export class SpringAnimator {
   }
 
   /**
+   * Draw acceleration vector arrow
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {number} massY - Mass center Y in canvas coordinates
+   * @param {number} acceleration - Acceleration in m/s² (positive = upward)
+   */
+  drawAccelerationVector(ctx, massY, acceleration) {
+    if (Math.abs(acceleration) < 0.01) return; // Don't draw tiny accelerations
+
+    const x = this.anchorX - this.massWidth / 2 - 20; // Left side of mass
+    const arrowLength = Math.min(Math.abs(acceleration) * 20, 100);
+    const direction = acceleration > 0 ? -1 : 1; // Flip: positive acceleration = up (decreasing Y)
+
+    ctx.strokeStyle = '#e67e22'; // Orange color for acceleration
+    ctx.fillStyle = '#e67e22';
+    ctx.lineWidth = 3;
+
+    // Draw arrow shaft
+    ctx.beginPath();
+    ctx.moveTo(x, massY);
+    ctx.lineTo(x, massY + arrowLength * direction);
+    ctx.stroke();
+
+    // Draw arrowhead
+    const headSize = 8;
+    ctx.beginPath();
+    ctx.moveTo(x, massY + arrowLength * direction);
+    ctx.lineTo(x - headSize, massY + arrowLength * direction - headSize * direction);
+    ctx.lineTo(x + headSize, massY + arrowLength * direction - headSize * direction);
+    ctx.closePath();
+    ctx.fill();
+
+    // Label
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText('a', x - 10, massY);
+  }
+
+  /**
    * Clear the canvas
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    */
@@ -254,8 +306,9 @@ export class SpringAnimator {
    * Draw the complete spring-mass system
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {Object} state - Physics state {y, v, t}
+   * @param {number} forcingValue - Optional forcing function value f(t) for acceleration calculation
    */
-  draw(ctx, state) {
+  draw(ctx, state, forcingValue = 0) {
     const { y, v } = state;
 
     // Clear canvas
@@ -264,12 +317,22 @@ export class SpringAnimator {
     // Convert physics position to canvas coordinates
     const massY = this.physicsToCanvasY(y);
 
+    // Calculate acceleration if system parameters are available
+    let acceleration = null;
+    if (this.systemParams) {
+      const { m, b, k } = this.systemParams;
+      acceleration = (-b * v - k * y + forcingValue) / m;
+    }
+
     // Draw in proper order (back to front)
     this.drawEquilibriumLine(ctx);
     this.drawAnchor(ctx);
     this.drawSpring(ctx, this.anchorY, massY);
     this.drawMass(ctx, massY);
     this.drawVelocityVector(ctx, massY, v);
+    if (acceleration !== null) {
+      this.drawAccelerationVector(ctx, massY, acceleration);
+    }
     this.drawInfo(ctx, y, v);
   }
 
@@ -281,13 +344,13 @@ export class SpringAnimator {
   getStats(state) {
     const { y } = state;
     const massY = this.physicsToCanvasY(y);
-    const springLength = massY - this.anchorY;
+    const springLength = Math.abs(this.anchorY - massY);
 
     return {
       massY,
       springLength,
-      isCompressed: y < 0,
-      isExtended: y > 0,
+      isCompressed: y > 0,  // Positive y = above equilibrium = compressed
+      isExtended: y < 0,    // Negative y = below equilibrium = extended
       isAtEquilibrium: Math.abs(y) < 0.001
     };
   }
