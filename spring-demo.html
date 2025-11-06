@@ -166,11 +166,15 @@
       transform: translateY(0);
     }
 
-    .launch-btn {
-      width: 100%;
-      padding: 15px;
+    .control-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
       margin-top: 15px;
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+    }
+
+    .control-btn {
+      padding: 15px;
       color: white;
       border: none;
       border-radius: 8px;
@@ -178,17 +182,45 @@
       font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
+    }
+
+    .reset-btn {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .reset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+    }
+
+    .reset-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+    }
+
+    .play-pause-btn {
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
       box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
     }
 
-    .launch-btn:hover {
+    .play-pause-btn:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
     }
 
-    .launch-btn:active {
+    .play-pause-btn:active {
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    }
+
+    .play-pause-btn.paused {
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+      box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+    }
+
+    .play-pause-btn.paused:hover {
+      box-shadow: 0 6px 16px rgba(230, 126, 34, 0.4);
     }
 
     .info-panel {
@@ -277,7 +309,10 @@
           <button class="scenario-btn" onclick="setScenario('overdamped')">Overdamped</button>
         </div>
 
-        <button class="launch-btn" onclick="launchWithInitialConditions()">🚀 Launch</button>
+        <div class="control-buttons">
+          <button class="control-btn reset-btn" onclick="resetAnimation()">🔄 Reset</button>
+          <button class="control-btn play-pause-btn" id="play-pause-btn" onclick="togglePlayPause()">⏸️ Pause</button>
+        </div>
 
         <div class="info-panel">
           <h3>System Properties</h3>
@@ -331,6 +366,12 @@
     // Data storage for graph
     let graphData = [];
 
+    // Animation state
+    let isPlaying = true;
+
+    // Store initial position for graph scaling
+    let initialY0 = 1.0;
+
     // Get controls
     const massSlider = document.getElementById('mass-slider');
     const dampingSlider = document.getElementById('damping-slider');
@@ -365,10 +406,13 @@
       updateDisplays();
     }
 
-    // Launch with new initial conditions
-    window.launchWithInitialConditions = function() {
+    // Reset animation with new initial conditions
+    window.resetAnimation = function() {
       const y0 = parseFloat(y0Slider.value);
       const v0 = parseFloat(v0Slider.value);
+
+      // Store initial position for graph scaling
+      initialY0 = y0;
 
       // Create new system with current parameters and new initial conditions
       const params = system.getParameters();
@@ -390,7 +434,25 @@
       // Reset graph data
       graphData = [];
 
+      // Resume animation if paused
+      if (!isPlaying) {
+        togglePlayPause();
+      }
+
       updateDisplays();
+    };
+
+    // Toggle play/pause
+    window.togglePlayPause = function() {
+      isPlaying = !isPlaying;
+      const btn = document.getElementById('play-pause-btn');
+      if (isPlaying) {
+        btn.textContent = '⏸️ Pause';
+        btn.classList.remove('paused');
+      } else {
+        btn.textContent = '▶️ Play';
+        btn.classList.add('paused');
+      }
     };
 
     // Scenario presets
@@ -459,17 +521,18 @@
       const elapsed = currentTime - lastTime;
 
       if (elapsed >= 16) { // ~60 FPS
-        // Step physics
-        const state = system.step(dt);
+        if (isPlaying) {
+          // Step physics
+          const state = system.step(dt);
 
-        // Add data point to graph
-        graphData.push({ t: state.t, y: state.y });
+          // Add data point to graph
+          graphData.push({ t: state.t, y: state.y });
+        }
 
-        // Render spring animation
+        // Always render (even when paused, to show current state)
+        const state = system.getState();
         animator.draw(springCtx, state);
-
-        // Render graph
-        grapher.draw(graphCtx, graphData);
+        grapher.draw(graphCtx, graphData, initialY0);
 
         lastTime = currentTime;
       }
