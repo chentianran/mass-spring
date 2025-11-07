@@ -15,6 +15,17 @@ function none(t) {
 }
 
 /**
+ * Constant forcing function
+ * @param {number} t - Current time (seconds)
+ * @param {Object} params - Parameters {force}
+ * @param {number} params.force - Constant force value (N)
+ * @returns {number} Force value (Newtons)
+ */
+function constant(t, { force = 1.0 }) {
+  return force;
+}
+
+/**
  * Sinusoidal forcing function
  * @param {number} t - Current time (seconds)
  * @param {Object} params - Parameters {amplitude, frequency}
@@ -86,6 +97,7 @@ function impulse(t, { amplitude = 1.0, impulseTime = 0.0, width = 0.01 }) {
  */
 export const presets = {
   none,
+  constant,
   sine,
   cosine,
   step,
@@ -98,6 +110,7 @@ export const presets = {
  */
 export const defaultParams = {
   none: {},
+  constant: { force: 1.0 },
   sine: { amplitude: 1.0, frequency: 1.0 },
   cosine: { amplitude: 1.0, frequency: 1.0 },
   step: { amplitude: 1.0, stepTime: 1.0 },
