@@ -302,6 +302,59 @@
           <input type="range" id="v0-slider" min="-5" max="5" step="0.1" value="0">
         </div>
 
+        <div class="control-group">
+          <label>
+            Forcing Function f(t):
+          </label>
+          <select id="forcing-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #dee2e6; font-size: 0.95em; cursor: pointer;">
+            <option value="none">None (free oscillation)</option>
+            <option value="constant">Constant (gravity-like)</option>
+            <option value="cosine">Cosine: a·cos(ωt)</option>
+            <option value="step">Step function</option>
+          </select>
+        </div>
+
+        <div class="control-group" id="forcing-params-container" style="display: none;">
+          <!-- Constant force parameter -->
+          <div id="constant-params" style="display: none;">
+            <label>
+              Force (g):
+              <span class="value-display" id="force-value">1.00 N</span>
+            </label>
+            <input type="range" id="force-slider" min="-5" max="5" step="0.1" value="1">
+          </div>
+
+          <!-- Cosine parameters -->
+          <div id="cosine-params" style="display: none;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+              Amplitude (a):
+              <span class="value-display" id="amplitude-value">1.00 N</span>
+            </label>
+            <input type="range" id="amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
+
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+              Frequency (ω/2π):
+              <span class="value-display" id="frequency-value">1.00 Hz</span>
+            </label>
+            <input type="range" id="frequency-slider" min="0.1" max="5" step="0.1" value="1" style="width: 100%;">
+          </div>
+
+          <!-- Step function parameters -->
+          <div id="step-params" style="display: none;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+              Amplitude:
+              <span class="value-display" id="step-amplitude-value">1.00 N</span>
+            </label>
+            <input type="range" id="step-amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
+
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+              Step Time:
+              <span class="value-display" id="step-time-value">1.00 s</span>
+            </label>
+            <input type="range" id="step-time-slider" min="0" max="10" step="0.1" value="1" style="width: 100%;">
+          </div>
+        </div>
+
         <div class="scenario-buttons">
           <button class="scenario-btn" onclick="setScenario('shm')">Simple Harmonic</button>
           <button class="scenario-btn" onclick="setScenario('underdamped')">Underdamped</button>
@@ -378,6 +431,68 @@
     const springSlider = document.getElementById('spring-slider');
     const y0Slider = document.getElementById('y0-slider');
     const v0Slider = document.getElementById('v0-slider');
+
+    // Forcing function controls
+    const forcingSelect = document.getElementById('forcing-select');
+    const forcingParamsContainer = document.getElementById('forcing-params-container');
+    const constantParams = document.getElementById('constant-params');
+    const cosineParams = document.getElementById('cosine-params');
+    const stepParams = document.getElementById('step-params');
+
+    // Forcing function parameter sliders
+    const forceSlider = document.getElementById('force-slider');
+    const amplitudeSlider = document.getElementById('amplitude-slider');
+    const frequencySlider = document.getElementById('frequency-slider');
+    const stepAmplitudeSlider = document.getElementById('step-amplitude-slider');
+    const stepTimeSlider = document.getElementById('step-time-slider');
+
+    // Update forcing parameter displays
+    function updateForcingDisplays() {
+      document.getElementById('force-value').textContent = parseFloat(forceSlider.value).toFixed(2) + ' N';
+      document.getElementById('amplitude-value').textContent = parseFloat(amplitudeSlider.value).toFixed(2) + ' N';
+      document.getElementById('frequency-value').textContent = parseFloat(frequencySlider.value).toFixed(2) + ' Hz';
+      document.getElementById('step-amplitude-value').textContent = parseFloat(stepAmplitudeSlider.value).toFixed(2) + ' N';
+      document.getElementById('step-time-value').textContent = parseFloat(stepTimeSlider.value).toFixed(2) + ' s';
+    }
+
+    // Show/hide forcing parameter controls based on selected forcing function
+    function updateForcingControls() {
+      const selectedForcing = forcingSelect.value;
+
+      // Hide all parameter sections
+      constantParams.style.display = 'none';
+      cosineParams.style.display = 'none';
+      stepParams.style.display = 'none';
+
+      // Show container and appropriate parameters
+      if (selectedForcing === 'none') {
+        forcingParamsContainer.style.display = 'none';
+        system.setForcing('none', {});
+      } else {
+        forcingParamsContainer.style.display = 'block';
+
+        if (selectedForcing === 'constant') {
+          constantParams.style.display = 'block';
+          system.setForcing('constant', {
+            force: parseFloat(forceSlider.value)
+          });
+        } else if (selectedForcing === 'cosine') {
+          cosineParams.style.display = 'block';
+          system.setForcing('cosine', {
+            amplitude: parseFloat(amplitudeSlider.value),
+            frequency: parseFloat(frequencySlider.value)
+          });
+        } else if (selectedForcing === 'step') {
+          stepParams.style.display = 'block';
+          system.setForcing('step', {
+            amplitude: parseFloat(stepAmplitudeSlider.value),
+            stepTime: parseFloat(stepTimeSlider.value)
+          });
+        }
+      }
+
+      updateForcingDisplays();
+    }
 
     // Update displays
     function updateDisplays() {
@@ -513,6 +628,50 @@
       updateDisplays();
     });
 
+    // Forcing function event listeners
+    forcingSelect.addEventListener('change', () => {
+      updateForcingControls();
+    });
+
+    forceSlider.addEventListener('input', () => {
+      system.setForcing('constant', {
+        force: parseFloat(forceSlider.value)
+      });
+      updateForcingDisplays();
+    });
+
+    amplitudeSlider.addEventListener('input', () => {
+      system.setForcing('cosine', {
+        amplitude: parseFloat(amplitudeSlider.value),
+        frequency: parseFloat(frequencySlider.value)
+      });
+      updateForcingDisplays();
+    });
+
+    frequencySlider.addEventListener('input', () => {
+      system.setForcing('cosine', {
+        amplitude: parseFloat(amplitudeSlider.value),
+        frequency: parseFloat(frequencySlider.value)
+      });
+      updateForcingDisplays();
+    });
+
+    stepAmplitudeSlider.addEventListener('input', () => {
+      system.setForcing('step', {
+        amplitude: parseFloat(stepAmplitudeSlider.value),
+        stepTime: parseFloat(stepTimeSlider.value)
+      });
+      updateForcingDisplays();
+    });
+
+    stepTimeSlider.addEventListener('input', () => {
+      system.setForcing('step', {
+        amplitude: parseFloat(stepAmplitudeSlider.value),
+        stepTime: parseFloat(stepTimeSlider.value)
+      });
+      updateForcingDisplays();
+    });
+
     // Animation loop
     const dt = 0.016; // 60 FPS
     let lastTime = performance.now();
@@ -542,6 +701,7 @@
 
     // Initial display
     updateDisplays();
+    updateForcingDisplays();
 
     // Start animation
     requestAnimationFrame(animate);

@@ -278,6 +278,42 @@ describe('MassSpringSystem - Physics Validation', () => {
       }
     });
 
+    it('should apply constant forcing correctly', () => {
+      // Test constant forcing (like gravity)
+      // With constant force, the system should settle to a new equilibrium
+      // where the spring force balances the applied force: k*y_eq = F => y_eq = F/k
+      const m = 1.0;
+      const b = 0.5;  // Some damping to allow settling
+      const k = 2.0;
+      const force = 4.0;
+
+      const system = new MassSpringSystem({
+        m, b, k,
+        y0: 0.0,
+        v0: 0.0
+      });
+
+      system.setForcing('constant', { force });
+
+      const dt = 0.01;
+      const numSteps = 2000; // 20 seconds to allow settling
+
+      let finalY = 0;
+      for (let i = 0; i < numSteps; i++) {
+        const state = system.step(dt);
+        finalY = state.y;
+      }
+
+      // Expected equilibrium position: y_eq = F/k
+      const expectedEquilibrium = force / k;
+
+      // After sufficient time with damping, should be close to equilibrium
+      expect(Math.abs(finalY - expectedEquilibrium)).toBeLessThan(0.1);
+
+      // Also verify the system is actually displaced (not at origin)
+      expect(Math.abs(finalY)).toBeGreaterThan(1.5);
+    });
+
     it('should exhibit resonance at natural frequency', () => {
       const m = 1.0;
       const k = 1.0;
