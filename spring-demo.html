@@ -12,8 +12,9 @@
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      color: #555;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,29 +24,12 @@
 
     .container {
       background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
       overflow: hidden;
       max-width: 900px;
       width: 100%;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0 0 10px 0;
-      font-size: 2em;
-    }
-
-    .header p {
-      margin: 0;
-      opacity: 0.9;
-      font-size: 1.1em;
+      border: 1px solid #e0e0e0;
     }
 
     .content {
@@ -96,7 +80,7 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #2c3e50;
+      color: #333;
       font-size: 0.95em;
     }
 
@@ -115,7 +99,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #667eea;
+      background: #AA1111;
       cursor: pointer;
     }
 
@@ -123,7 +107,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #667eea;
+      background: #AA1111;
       cursor: pointer;
       border: none;
     }
@@ -131,7 +115,7 @@
     .value-display {
       display: inline-block;
       margin-left: 10px;
-      color: #667eea;
+      color: #AA1111;
       font-weight: 600;
       min-width: 60px;
     }
@@ -145,9 +129,9 @@
 
     .scenario-btn {
       padding: 12px 20px;
-      border: 2px solid #667eea;
+      border: 2px solid #AA1111;
       background: white;
-      color: #667eea;
+      color: #AA1111;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
@@ -156,10 +140,10 @@
     }
 
     .scenario-btn:hover {
-      background: #667eea;
+      background: #AA1111;
       color: white;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 12px rgba(170, 17, 17, 0.3);
     }
 
     .scenario-btn:active {
@@ -185,42 +169,45 @@
     }
 
     .reset-btn {
-      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+      background: #555;
+      box-shadow: 0 2px 8px rgba(85, 85, 85, 0.2);
     }
 
     .reset-btn:hover {
+      background: #333;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(52, 152, 219, 0.4);
+      box-shadow: 0 4px 12px rgba(85, 85, 85, 0.3);
     }
 
     .reset-btn:active {
       transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+      box-shadow: 0 2px 8px rgba(85, 85, 85, 0.2);
     }
 
     .play-pause-btn {
-      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+      background: #AA1111;
+      box-shadow: 0 2px 8px rgba(170, 17, 17, 0.2);
     }
 
     .play-pause-btn:hover {
+      background: #CC1111;
       transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+      box-shadow: 0 4px 12px rgba(170, 17, 17, 0.3);
     }
 
     .play-pause-btn:active {
       transform: translateY(0);
-      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+      box-shadow: 0 2px 8px rgba(170, 17, 17, 0.2);
     }
 
     .play-pause-btn.paused {
-      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-      box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
+      background: #666;
+      box-shadow: 0 2px 8px rgba(102, 102, 102, 0.2);
     }
 
     .play-pause-btn.paused:hover {
-      box-shadow: 0 6px 16px rgba(230, 126, 34, 0.4);
+      background: #777;
+      box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
     }
 
     .info-panel {
@@ -233,28 +220,23 @@
 
     .info-panel h3 {
       margin: 0 0 10px 0;
-      color: #2c3e50;
+      color: #333;
       font-size: 1em;
     }
 
     .info-panel p {
       margin: 5px 0;
-      color: #6c757d;
+      color: #555;
     }
 
     .info-panel .value {
-      color: #667eea;
+      color: #AA1111;
       font-weight: 600;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>🌀 Spring Animation Demo</h1>
-      <p>Interactive Mass-Spring-Damper System Visualization</p>
-    </div>
-
     <div class="content">
       <div class="canvas-container">
         <canvas id="springCanvas" width="400" height="400"></canvas>
@@ -326,13 +308,13 @@
 
           <!-- Cosine parameters -->
           <div id="cosine-params" style="display: none;">
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
               Amplitude (a):
               <span class="value-display" id="amplitude-value">1.00 N</span>
             </label>
             <input type="range" id="amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
 
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
               Frequency (ω/2π):
               <span class="value-display" id="frequency-value">1.00 Hz</span>
             </label>
@@ -341,13 +323,13 @@
 
           <!-- Step function parameters -->
           <div id="step-params" style="display: none;">
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
               Amplitude:
               <span class="value-display" id="step-amplitude-value">1.00 N</span>
             </label>
             <input type="range" id="step-amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
 
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #2c3e50; font-size: 0.95em;">
+            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
               Step Time:
               <span class="value-display" id="step-time-value">1.00 s</span>
             </label>
