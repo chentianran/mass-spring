@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spring Animation Demo - Mass-Spring System</title>
   <style>
+    :root {
+      --color-primary: #AA1111;
+      --color-primary-hover: #CC1111;
+      --color-primary-shadow: rgba(170, 17, 17, 0.3);
+      --color-text: #555;
+      --color-heading: #333;
+      --color-border: #dee2e6;
+      --color-background: #ffffff;
+      --color-bg-light: #f8f9fa;
+      --color-gray: #666;
+      --color-gray-dark: #555;
+      --color-gray-darker: #333;
+      --color-gray-light: #777;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,8 +28,8 @@
 
     body {
       font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #ffffff;
-      color: #555;
+      background: var(--color-background);
+      color: var(--color-text);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,7 +38,7 @@
     }
 
     .container {
-      background: white;
+      background: var(--color-background);
       border-radius: 12px;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
       overflow: hidden;
@@ -40,7 +55,7 @@
     .canvas-container {
       flex: 1;
       min-width: 400px;
-      background: #f8f9fa;
+      background: var(--color-bg-light);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -50,9 +65,9 @@
     }
 
     canvas {
-      border: 2px solid #dee2e6;
+      border: 2px solid var(--color-border);
       border-radius: 10px;
-      background: white;
+      background: var(--color-background);
       display: block;
     }
 
@@ -80,7 +95,7 @@
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
-      color: #333;
+      color: var(--color-heading);
       font-size: 0.95em;
     }
 
@@ -88,7 +103,7 @@
       width: 100%;
       height: 6px;
       border-radius: 3px;
-      background: #dee2e6;
+      background: var(--color-border);
       outline: none;
       -webkit-appearance: none;
     }
@@ -99,7 +114,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #AA1111;
+      background: var(--color-primary);
       cursor: pointer;
     }
 
@@ -107,7 +122,7 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: #AA1111;
+      background: var(--color-primary);
       cursor: pointer;
       border: none;
     }
@@ -115,7 +130,7 @@
     .value-display {
       display: inline-block;
       margin-left: 10px;
-      color: #AA1111;
+      color: var(--color-primary);
       font-weight: 600;
       min-width: 60px;
     }
@@ -129,9 +144,9 @@
 
     .scenario-btn {
       padding: 12px 20px;
-      border: 2px solid #AA1111;
-      background: white;
-      color: #AA1111;
+      border: 2px solid var(--color-primary);
+      background: var(--color-background);
+      color: var(--color-primary);
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
@@ -140,10 +155,10 @@
     }
 
     .scenario-btn:hover {
-      background: #AA1111;
-      color: white;
+      background: var(--color-primary);
+      color: var(--color-background);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(170, 17, 17, 0.3);
+      box-shadow: 0 4px 12px var(--color-primary-shadow);
     }
 
     .scenario-btn:active {
@@ -169,12 +184,12 @@
     }
 
     .reset-btn {
-      background: #555;
+      background: var(--color-gray-dark);
       box-shadow: 0 2px 8px rgba(85, 85, 85, 0.2);
     }
 
     .reset-btn:hover {
-      background: #333;
+      background: var(--color-gray-darker);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(85, 85, 85, 0.3);
     }
@@ -185,14 +200,14 @@
     }
 
     .play-pause-btn {
-      background: #AA1111;
+      background: var(--color-primary);
       box-shadow: 0 2px 8px rgba(170, 17, 17, 0.2);
     }
 
     .play-pause-btn:hover {
-      background: #CC1111;
+      background: var(--color-primary-hover);
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(170, 17, 17, 0.3);
+      box-shadow: 0 4px 12px var(--color-primary-shadow);
     }
 
     .play-pause-btn:active {
@@ -201,17 +216,17 @@
     }
 
     .play-pause-btn.paused {
-      background: #666;
+      background: var(--color-gray);
       box-shadow: 0 2px 8px rgba(102, 102, 102, 0.2);
     }
 
     .play-pause-btn.paused:hover {
-      background: #777;
+      background: var(--color-gray-light);
       box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
     }
 
     .info-panel {
-      background: #f8f9fa;
+      background: var(--color-bg-light);
       padding: 15px;
       border-radius: 8px;
       margin-top: 20px;
@@ -220,18 +235,41 @@
 
     .info-panel h3 {
       margin: 0 0 10px 0;
-      color: #333;
+      color: var(--color-heading);
       font-size: 1em;
     }
 
     .info-panel p {
       margin: 5px 0;
-      color: #555;
+      color: var(--color-text);
     }
 
     .info-panel .value {
-      color: #AA1111;
+      color: var(--color-primary);
       font-weight: 600;
+    }
+
+    /* Additional CSS classes for inline-styled elements */
+    .forcing-select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid var(--color-border);
+      font-size: 0.95em;
+      cursor: pointer;
+    }
+
+    .forcing-param-label {
+      margin-bottom: 8px;
+      display: block;
+      font-weight: 600;
+      color: var(--color-heading);
+      font-size: 0.95em;
+    }
+
+    .forcing-param-slider {
+      width: 100%;
+      margin-bottom: 15px;
     }
   </style>
 </head>
@@ -288,7 +326,7 @@
           <label>
             Forcing Function f(t):
           </label>
-          <select id="forcing-select" style="width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #dee2e6; font-size: 0.95em; cursor: pointer;">
+          <select id="forcing-select" class="forcing-select">
             <option value="none">None (free oscillation)</option>
             <option value="constant">Constant (gravity-like)</option>
             <option value="cosine">Cosine: a·cos(ωt)</option>
@@ -308,45 +346,45 @@
 
           <!-- Cosine parameters -->
           <div id="cosine-params" style="display: none;">
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
+            <label class="forcing-param-label">
               Amplitude (a):
               <span class="value-display" id="amplitude-value">1.00 N</span>
             </label>
-            <input type="range" id="amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
+            <input type="range" id="amplitude-slider" min="0" max="5" step="0.1" value="1" class="forcing-param-slider">
 
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
+            <label class="forcing-param-label">
               Frequency (ω/2π):
               <span class="value-display" id="frequency-value">1.00 Hz</span>
             </label>
-            <input type="range" id="frequency-slider" min="0.1" max="5" step="0.1" value="1" style="width: 100%;">
+            <input type="range" id="frequency-slider" min="0.1" max="5" step="0.1" value="1">
           </div>
 
           <!-- Step function parameters -->
           <div id="step-params" style="display: none;">
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
+            <label class="forcing-param-label">
               Amplitude:
               <span class="value-display" id="step-amplitude-value">1.00 N</span>
             </label>
-            <input type="range" id="step-amplitude-slider" min="0" max="5" step="0.1" value="1" style="width: 100%; margin-bottom: 15px;">
+            <input type="range" id="step-amplitude-slider" min="0" max="5" step="0.1" value="1" class="forcing-param-slider">
 
-            <label style="margin-bottom: 8px; display: block; font-weight: 600; color: #333; font-size: 0.95em;">
+            <label class="forcing-param-label">
               Step Time:
               <span class="value-display" id="step-time-value">1.00 s</span>
             </label>
-            <input type="range" id="step-time-slider" min="0" max="10" step="0.1" value="1" style="width: 100%;">
+            <input type="range" id="step-time-slider" min="0" max="10" step="0.1" value="1">
           </div>
         </div>
 
         <div class="scenario-buttons">
-          <button class="scenario-btn" onclick="setScenario('shm')">Simple Harmonic</button>
-          <button class="scenario-btn" onclick="setScenario('underdamped')">Underdamped</button>
-          <button class="scenario-btn" onclick="setScenario('critical')">Critical Damping</button>
-          <button class="scenario-btn" onclick="setScenario('overdamped')">Overdamped</button>
+          <button class="scenario-btn" data-scenario="shm">Simple Harmonic</button>
+          <button class="scenario-btn" data-scenario="underdamped">Underdamped</button>
+          <button class="scenario-btn" data-scenario="critical">Critical Damping</button>
+          <button class="scenario-btn" data-scenario="overdamped">Overdamped</button>
         </div>
 
         <div class="control-buttons">
-          <button class="control-btn reset-btn" onclick="resetAnimation()">🔄 Reset</button>
-          <button class="control-btn play-pause-btn" id="play-pause-btn" onclick="togglePlayPause()">⏸️ Pause</button>
+          <button class="control-btn reset-btn" id="reset-btn">🔄 Reset</button>
+          <button class="control-btn play-pause-btn" id="play-pause-btn">⏸️ Pause</button>
         </div>
 
         <div class="info-panel">
@@ -364,6 +402,14 @@
     import { MassSpringSystem } from './src/physics/MassSpringSystem.js';
     import { SpringAnimator } from './src/rendering/SpringAnimator.js';
     import { GraphPlotter } from './src/rendering/GraphPlotter.js';
+
+    // Constants
+    const CANVAS_WIDTH = 400;
+    const CANVAS_HEIGHT_SPRING = 400;
+    const CANVAS_HEIGHT_GRAPH = 200;
+    const TARGET_FPS = 60;
+    const FRAME_TIME_MS = 1000 / TARGET_FPS;
+    const TIME_STEP = FRAME_TIME_MS / 1000;
 
     // Get canvases and contexts
     const springCanvas = document.getElementById('springCanvas');
@@ -383,8 +429,8 @@
 
     // Create animator with system parameters
     const animator = new SpringAnimator({
-      width: 400,
-      height: 400,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT_SPRING,
       systemParams: {
         m: 1.0,
         b: 0.1,
@@ -394,8 +440,8 @@
 
     // Create graph plotter
     const grapher = new GraphPlotter({
-      width: 400,
-      height: 200
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT_GRAPH
     });
 
     // Data storage for graph
@@ -430,11 +476,11 @@
 
     // Update forcing parameter displays
     function updateForcingDisplays() {
-      document.getElementById('force-value').textContent = parseFloat(forceSlider.value).toFixed(2) + ' N';
-      document.getElementById('amplitude-value').textContent = parseFloat(amplitudeSlider.value).toFixed(2) + ' N';
-      document.getElementById('frequency-value').textContent = parseFloat(frequencySlider.value).toFixed(2) + ' Hz';
-      document.getElementById('step-amplitude-value').textContent = parseFloat(stepAmplitudeSlider.value).toFixed(2) + ' N';
-      document.getElementById('step-time-value').textContent = parseFloat(stepTimeSlider.value).toFixed(2) + ' s';
+      document.getElementById('force-value').textContent = `${parseFloat(forceSlider.value).toFixed(2)} N`;
+      document.getElementById('amplitude-value').textContent = `${parseFloat(amplitudeSlider.value).toFixed(2)} N`;
+      document.getElementById('frequency-value').textContent = `${parseFloat(frequencySlider.value).toFixed(2)} Hz`;
+      document.getElementById('step-amplitude-value').textContent = `${parseFloat(stepAmplitudeSlider.value).toFixed(2)} N`;
+      document.getElementById('step-time-value').textContent = `${parseFloat(stepTimeSlider.value).toFixed(2)} s`;
     }
 
     // Show/hide forcing parameter controls based on selected forcing function
@@ -478,14 +524,14 @@
 
     // Update displays
     function updateDisplays() {
-      document.getElementById('mass-value').textContent = parseFloat(massSlider.value).toFixed(2) + ' kg';
-      document.getElementById('damping-value').textContent = parseFloat(dampingSlider.value).toFixed(2) + ' N·s/m';
-      document.getElementById('spring-value').textContent = parseFloat(springSlider.value).toFixed(2) + ' N/m';
-      document.getElementById('y0-value').textContent = parseFloat(y0Slider.value).toFixed(2) + ' m';
-      document.getElementById('v0-value').textContent = parseFloat(v0Slider.value).toFixed(2) + ' m/s';
+      document.getElementById('mass-value').textContent = `${parseFloat(massSlider.value).toFixed(2)} kg`;
+      document.getElementById('damping-value').textContent = `${parseFloat(dampingSlider.value).toFixed(2)} N·s/m`;
+      document.getElementById('spring-value').textContent = `${parseFloat(springSlider.value).toFixed(2)} N/m`;
+      document.getElementById('y0-value').textContent = `${parseFloat(y0Slider.value).toFixed(2)} m`;
+      document.getElementById('v0-value').textContent = `${parseFloat(v0Slider.value).toFixed(2)} m/s`;
 
       const props = system.getSystemProperties();
-      document.getElementById('freq-display').textContent = props.f0.toFixed(3) + ' Hz';
+      document.getElementById('freq-display').textContent = `${props.f0.toFixed(3)} Hz`;
       document.getElementById('regime-display').textContent = props.regime;
       document.getElementById('zeta-display').textContent = props.zeta.toFixed(3);
       document.getElementById('q-display').textContent = props.Q.toFixed(2);
@@ -504,29 +550,28 @@
     }
 
     // Reset animation with new initial conditions
-    window.resetAnimation = function() {
+    function resetAnimation() {
       const y0 = parseFloat(y0Slider.value);
       const v0 = parseFloat(v0Slider.value);
 
       // Store initial position for graph scaling
       initialY0 = y0;
 
-      // Create new system with current parameters and new initial conditions
-      const params = system.getParameters();
-      const newSystem = new MassSpringSystem({
-        m: params.m,
-        b: params.b,
-        k: params.k,
+      // Get current forcing function to preserve it
+      const forcing = system.getForcing();
+
+      // Reset the system with new initial conditions
+      system.reset();
+      system.setParameters({
+        m: parseFloat(massSlider.value),
+        b: parseFloat(dampingSlider.value),
+        k: parseFloat(springSlider.value),
         y0: y0,
         v0: v0
       });
 
-      // Copy forcing function if any
-      const forcing = system.getForcing();
-      newSystem.setForcing(forcing.name, forcing.params);
-
-      // Replace the system
-      Object.assign(system, newSystem);
+      // Restore forcing function
+      system.setForcing(forcing.name, forcing.params);
 
       // Reset graph data
       graphData = [];
@@ -537,10 +582,10 @@
       }
 
       updateDisplays();
-    };
+    }
 
     // Toggle play/pause
-    window.togglePlayPause = function() {
+    function togglePlayPause() {
       isPlaying = !isPlaying;
       const btn = document.getElementById('play-pause-btn');
       if (isPlaying) {
@@ -550,10 +595,10 @@
         btn.textContent = '▶️ Play';
         btn.classList.add('paused');
       }
-    };
+    }
 
     // Scenario presets
-    window.setScenario = function(scenario) {
+    function setScenario(scenario) {
       switch (scenario) {
         case 'shm':
           massSlider.value = 1.0;
@@ -587,7 +632,7 @@
       graphData = [];
 
       updateDisplays();
-    };
+    }
 
     // Event listeners
     massSlider.addEventListener('input', () => {
@@ -610,61 +655,60 @@
       updateDisplays();
     });
 
-    // Forcing function event listeners
-    forcingSelect.addEventListener('change', () => {
-      updateForcingControls();
-    });
-
-    forceSlider.addEventListener('input', () => {
+    // Helper functions for forcing function updates
+    function updateConstantForcing() {
       system.setForcing('constant', {
         force: parseFloat(forceSlider.value)
       });
       updateForcingDisplays();
-    });
+    }
 
-    amplitudeSlider.addEventListener('input', () => {
+    function updateCosineForcing() {
       system.setForcing('cosine', {
         amplitude: parseFloat(amplitudeSlider.value),
         frequency: parseFloat(frequencySlider.value)
       });
       updateForcingDisplays();
-    });
+    }
 
-    frequencySlider.addEventListener('input', () => {
-      system.setForcing('cosine', {
-        amplitude: parseFloat(amplitudeSlider.value),
-        frequency: parseFloat(frequencySlider.value)
-      });
-      updateForcingDisplays();
-    });
-
-    stepAmplitudeSlider.addEventListener('input', () => {
+    function updateStepForcing() {
       system.setForcing('step', {
         amplitude: parseFloat(stepAmplitudeSlider.value),
         stepTime: parseFloat(stepTimeSlider.value)
       });
       updateForcingDisplays();
-    });
+    }
 
-    stepTimeSlider.addEventListener('input', () => {
-      system.setForcing('step', {
-        amplitude: parseFloat(stepAmplitudeSlider.value),
-        stepTime: parseFloat(stepTimeSlider.value)
+    // Forcing function event listeners
+    forcingSelect.addEventListener('change', updateForcingControls);
+    forceSlider.addEventListener('input', updateConstantForcing);
+    amplitudeSlider.addEventListener('input', updateCosineForcing);
+    frequencySlider.addEventListener('input', updateCosineForcing);
+    stepAmplitudeSlider.addEventListener('input', updateStepForcing);
+    stepTimeSlider.addEventListener('input', updateStepForcing);
+
+    // Button event listeners
+    document.getElementById('reset-btn').addEventListener('click', resetAnimation);
+    document.getElementById('play-pause-btn').addEventListener('click', togglePlayPause);
+
+    // Scenario button event listeners
+    document.querySelectorAll('.scenario-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const scenario = btn.dataset.scenario;
+        setScenario(scenario);
       });
-      updateForcingDisplays();
     });
 
     // Animation loop
-    const dt = 0.016; // 60 FPS
     let lastTime = performance.now();
 
     function animate(currentTime) {
       const elapsed = currentTime - lastTime;
 
-      if (elapsed >= 16) { // ~60 FPS
+      if (elapsed >= FRAME_TIME_MS) {
         if (isPlaying) {
           // Step physics
-          const state = system.step(dt);
+          const state = system.step(TIME_STEP);
 
           // Add data point to graph
           graphData.push({ t: state.t, y: state.y });
