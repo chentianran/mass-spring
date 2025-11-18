@@ -209,11 +209,10 @@ export class GraphPlotter {
    * @param {Object} bounds - Axis bounds {tMin, tMax, yMin, yMax}
    */
   drawForcingPlot(ctx, forcingFn, forcingParams, bounds) {
-    ctx.strokeStyle = '#888888';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#999999';
+    ctx.lineWidth = 1.0;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.setLineDash([5, 3]);
 
     ctx.beginPath();
 
@@ -237,7 +236,6 @@ export class GraphPlotter {
     }
 
     ctx.stroke();
-    ctx.setLineDash([]);
   }
 
   /**
