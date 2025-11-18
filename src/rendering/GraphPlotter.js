@@ -202,6 +202,45 @@ export class GraphPlotter {
   }
 
   /**
+   * Draw the forcing function plot
+   * @param {CanvasRenderingContext2D} ctx - Canvas context
+   * @param {Function} forcingFn - Forcing function
+   * @param {Object} forcingParams - Parameters for forcing function
+   * @param {Object} bounds - Axis bounds {tMin, tMax, yMin, yMax}
+   */
+  drawForcingPlot(ctx, forcingFn, forcingParams, bounds) {
+    ctx.strokeStyle = '#888888';
+    ctx.lineWidth = 1.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.setLineDash([5, 3]);
+
+    ctx.beginPath();
+
+    // Sample the forcing function at many points for smooth curve
+    const numSamples = 200;
+    const dt = (bounds.tMax - bounds.tMin) / numSamples;
+
+    for (let i = 0; i <= numSamples; i++) {
+      const t = bounds.tMin + i * dt;
+      const force = forcingFn(t, forcingParams);
+
+      // Map to canvas coordinates
+      const x = this.plotLeft + ((t - bounds.tMin) / (bounds.tMax - bounds.tMin)) * this.plotWidth;
+      const y = this.plotBottom - ((force - bounds.yMin) / (bounds.yMax - bounds.yMin)) * this.plotHeight;
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  /**
    * Draw the plot line
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {Array} data - Array of {t, y} points
@@ -249,8 +288,12 @@ export class GraphPlotter {
    * @param {CanvasRenderingContext2D} ctx - Canvas context
    * @param {Array} data - Array of {t, y} data points
    * @param {number} initialY0 - Initial position (for setting initial vertical range)
+   * @param {Object} forcingInfo - Forcing function information (optional)
+   * @param {string} forcingInfo.name - Name of forcing function
+   * @param {Function} forcingInfo.fn - Forcing function
+   * @param {Object} forcingInfo.params - Parameters for forcing function
    */
-  draw(ctx, data, initialY0 = null) {
+  draw(ctx, data, initialY0 = null, forcingInfo = null) {
     this.clear(ctx);
 
     // Need at least one data point
@@ -288,6 +331,19 @@ export class GraphPlotter {
       yMax = dataYMax;
     }
 
+    // If there's a forcing function, include it in the bounds calculation
+    if (forcingInfo && forcingInfo.name !== 'none' && forcingInfo.fn) {
+      // Sample forcing function to get its range
+      const numSamples = 50;
+      const dt = tMax / numSamples;
+      for (let i = 0; i <= numSamples; i++) {
+        const t = i * dt;
+        const force = forcingInfo.fn(t, forcingInfo.params);
+        yMin = Math.min(yMin, force);
+        yMax = Math.max(yMax, force);
+      }
+    }
+
     const yBounds = this.calculateNiceBounds(yMin, yMax);
 
     // Calculate nice time interval
@@ -319,6 +375,12 @@ export class GraphPlotter {
     // Draw components
     this.drawGrid(ctx, bounds, intervals);
     this.drawAxes(ctx, bounds, intervals);
+
+    // Draw forcing function first (so it's behind the position plot)
+    if (forcingInfo && forcingInfo.name !== 'none' && forcingInfo.fn) {
+      this.drawForcingPlot(ctx, forcingInfo.fn, forcingInfo.params, bounds);
+    }
+
     this.drawPlot(ctx, data, bounds);
   }
 
