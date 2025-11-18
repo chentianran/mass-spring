@@ -241,11 +241,12 @@ export class SpringAnimator {
     ctx.stroke();
 
     // Draw arrowhead
-    const headSize = 8;
+    const headSize = 6;
+    const headWidth = headSize / 2;
     ctx.beginPath();
     ctx.moveTo(x, massY + arrowLength * direction);
-    ctx.lineTo(x - headSize, massY + arrowLength * direction - headSize * direction);
-    ctx.lineTo(x + headSize, massY + arrowLength * direction - headSize * direction);
+    ctx.lineTo(x - headWidth, massY + arrowLength * direction - headSize * direction);
+    ctx.lineTo(x + headWidth, massY + arrowLength * direction - headSize * direction);
     ctx.closePath();
     ctx.fill();
 
@@ -279,11 +280,12 @@ export class SpringAnimator {
     ctx.stroke();
 
     // Draw arrowhead
-    const headSize = 8;
+    const headSize = 6;
+    const headWidth = headSize / 2;
     ctx.beginPath();
     ctx.moveTo(x, massY + arrowLength * direction);
-    ctx.lineTo(x - headSize, massY + arrowLength * direction - headSize * direction);
-    ctx.lineTo(x + headSize, massY + arrowLength * direction - headSize * direction);
+    ctx.lineTo(x - headWidth, massY + arrowLength * direction - headSize * direction);
+    ctx.lineTo(x + headWidth, massY + arrowLength * direction - headSize * direction);
     ctx.closePath();
     ctx.fill();
 
