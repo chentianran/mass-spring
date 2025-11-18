@@ -717,9 +717,8 @@
 
         // Always render (even when paused, to show current state)
         const state = system.getState();
-        animator.draw(springCtx, state);
 
-        // Get forcing function info for the graph
+        // Get forcing function info for the graph and animator
         const forcingData = system.getForcing();
         const forcingInfo = {
           name: forcingData.name,
@@ -727,6 +726,10 @@
           params: forcingData.params
         };
 
+        // Calculate current forcing value for acceleration arrow
+        const currentForce = forcingInfo.fn(state.t, forcingInfo.params);
+
+        animator.draw(springCtx, state, currentForce);
         grapher.draw(graphCtx, graphData, initialY0, forcingInfo);
 
         lastTime = currentTime;
