@@ -341,7 +341,7 @@
               Force (g):
               <span class="value-display" id="force-value">1.00 N</span>
             </label>
-            <input type="range" id="force-slider" min="-5" max="5" step="0.1" value="1">
+            <input type="range" id="force-slider" min="-10" max="10" step="0.1" value="1">
           </div>
 
           <!-- Cosine parameters -->
@@ -365,7 +365,7 @@
               Amplitude:
               <span class="value-display" id="step-amplitude-value">1.00 N</span>
             </label>
-            <input type="range" id="step-amplitude-slider" min="0" max="5" step="0.1" value="1" class="forcing-param-slider">
+            <input type="range" id="step-amplitude-slider" min="-10" max="10" step="0.1" value="1" class="forcing-param-slider">
 
             <label class="forcing-param-label">
               Step Time:
@@ -402,6 +402,7 @@
     import { MassSpringSystem } from './src/physics/MassSpringSystem.js';
     import { SpringAnimator } from './src/rendering/SpringAnimator.js';
     import { GraphPlotter } from './src/rendering/GraphPlotter.js';
+    import { presets } from './src/physics/forcingFunctions.js';
 
     // Constants
     const CANVAS_WIDTH = 400;
@@ -716,8 +717,20 @@
 
         // Always render (even when paused, to show current state)
         const state = system.getState();
-        animator.draw(springCtx, state);
-        grapher.draw(graphCtx, graphData, initialY0);
+
+        // Get forcing function info for the graph and animator
+        const forcingData = system.getForcing();
+        const forcingInfo = {
+          name: forcingData.name,
+          fn: presets[forcingData.name],
+          params: forcingData.params
+        };
+
+        // Calculate current forcing value for acceleration arrow
+        const currentForce = forcingInfo.fn(state.t, forcingInfo.params);
+
+        animator.draw(springCtx, state, currentForce);
+        grapher.draw(graphCtx, graphData, initialY0, forcingInfo);
 
         lastTime = currentTime;
       }
