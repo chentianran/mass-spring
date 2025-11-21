@@ -81,6 +81,11 @@
       height: 200px;
     }
 
+    #phaseCanvas {
+      width: 400px;
+      height: 200px;
+    }
+
     .controls {
       flex: 1;
       min-width: 300px;
@@ -279,6 +284,7 @@
       <div class="canvas-container">
         <canvas id="springCanvas" width="400" height="400"></canvas>
         <canvas id="graphCanvas" width="400" height="200"></canvas>
+        <canvas id="phaseCanvas" width="400" height="200"></canvas>
       </div>
 
       <div class="controls">
@@ -331,6 +337,7 @@
             <option value="constant">Constant (gravity-like)</option>
             <option value="cosine">Cosine: a·cos(ωt)</option>
             <option value="step">Step function</option>
+            <option value="impulse">Impulse: a·δ(t - t₀)</option>
           </select>
         </div>
 
@@ -373,6 +380,21 @@
             </label>
             <input type="range" id="step-time-slider" min="0" max="10" step="0.1" value="1">
           </div>
+
+          <!-- Impulse parameters -->
+          <div id="impulse-params" style="display: none;">
+            <label class="forcing-param-label">
+              Impulse Magnitude (a):
+              <span class="value-display" id="impulse-amplitude-value">1.00 N·s</span>
+            </label>
+            <input type="range" id="impulse-amplitude-slider" min="-10" max="10" step="0.1" value="1" class="forcing-param-slider">
+
+            <label class="forcing-param-label">
+              Impulse Time (t₀):
+              <span class="value-display" id="impulse-time-value">1.00 s</span>
+            </label>
+            <input type="range" id="impulse-time-slider" min="0" max="10" step="0.1" value="1">
+          </div>
         </div>
 
         <div class="scenario-buttons">
@@ -402,6 +424,7 @@
     import { MassSpringSystem } from './src/physics/MassSpringSystem.js';
     import { SpringAnimator } from './src/rendering/SpringAnimator.js';
     import { GraphPlotter } from './src/rendering/GraphPlotter.js';
+    import { PhasePortrait } from './src/rendering/PhasePortrait.js';
     import { presets } from './src/physics/forcingFunctions.js';
 
     // Constants
@@ -418,6 +441,9 @@
 
     const graphCanvas = document.getElementById('graphCanvas');
     const graphCtx = graphCanvas.getContext('2d');
+
+    const phaseCanvas = document.getElementById('phaseCanvas');
+    const phaseCtx = phaseCanvas.getContext('2d');
 
     // Create physics system
     const system = new MassSpringSystem({
@@ -445,14 +471,24 @@
       height: CANVAS_HEIGHT_GRAPH
     });
 
+    // Create phase portrait plotter
+    const phasePlotter = new PhasePortrait({
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT_GRAPH
+    });
+
     // Data storage for graph
     let graphData = [];
+
+    // Data storage for phase portrait
+    let phaseData = [];
 
     // Animation state
     let isPlaying = true;
 
-    // Store initial position for graph scaling
+    // Store initial conditions for graph/phase scaling
     let initialY0 = 1.0;
+    let initialV0 = 0.0;
 
     // Get controls
     const massSlider = document.getElementById('mass-slider');
@@ -467,6 +503,7 @@
     const constantParams = document.getElementById('constant-params');
     const cosineParams = document.getElementById('cosine-params');
     const stepParams = document.getElementById('step-params');
+    const impulseParams = document.getElementById('impulse-params');
 
     // Forcing function parameter sliders
     const forceSlider = document.getElementById('force-slider');
@@ -474,6 +511,8 @@
     const frequencySlider = document.getElementById('frequency-slider');
     const stepAmplitudeSlider = document.getElementById('step-amplitude-slider');
     const stepTimeSlider = document.getElementById('step-time-slider');
+    const impulseAmplitudeSlider = document.getElementById('impulse-amplitude-slider');
+    const impulseTimeSlider = document.getElementById('impulse-time-slider');
 
     // Update forcing parameter displays
     function updateForcingDisplays() {
@@ -482,6 +521,8 @@
       document.getElementById('frequency-value').textContent = `${parseFloat(frequencySlider.value).toFixed(2)} Hz`;
       document.getElementById('step-amplitude-value').textContent = `${parseFloat(stepAmplitudeSlider.value).toFixed(2)} N`;
       document.getElementById('step-time-value').textContent = `${parseFloat(stepTimeSlider.value).toFixed(2)} s`;
+      document.getElementById('impulse-amplitude-value').textContent = `${parseFloat(impulseAmplitudeSlider.value).toFixed(2)} N·s`;
+      document.getElementById('impulse-time-value').textContent = `${parseFloat(impulseTimeSlider.value).toFixed(2)} s`;
     }
 
     // Show/hide forcing parameter controls based on selected forcing function
@@ -492,6 +533,7 @@
       constantParams.style.display = 'none';
       cosineParams.style.display = 'none';
       stepParams.style.display = 'none';
+      impulseParams.style.display = 'none';
 
       // Show container and appropriate parameters
       if (selectedForcing === 'none') {
@@ -516,6 +558,12 @@
           system.setForcing('step', {
             amplitude: parseFloat(stepAmplitudeSlider.value),
             stepTime: parseFloat(stepTimeSlider.value)
+          });
+        } else if (selectedForcing === 'impulse') {
+          impulseParams.style.display = 'block';
+          system.setForcing('impulse', {
+            amplitude: parseFloat(impulseAmplitudeSlider.value),
+            impulseTime: parseFloat(impulseTimeSlider.value)
           });
         }
       }
@@ -555,8 +603,9 @@
       const y0 = parseFloat(y0Slider.value);
       const v0 = parseFloat(v0Slider.value);
 
-      // Store initial position for graph scaling
+      // Store initial conditions for graph/phase scaling
       initialY0 = y0;
+      initialV0 = v0;
 
       // Get current forcing function to preserve it
       const forcing = system.getForcing();
@@ -574,8 +623,9 @@
       // Restore forcing function
       system.setForcing(forcing.name, forcing.params);
 
-      // Reset graph data
+      // Reset graph data and phase data
       graphData = [];
+      phaseData = [];
 
       // Resume animation if paused
       if (!isPlaying) {
@@ -629,8 +679,9 @@
         k: parseFloat(springSlider.value)
       });
 
-      // Reset graph data
+      // Reset graph data and phase data
       graphData = [];
+      phaseData = [];
 
       updateDisplays();
     }
@@ -680,6 +731,14 @@
       updateForcingDisplays();
     }
 
+    function updateImpulseForcing() {
+      system.setForcing('impulse', {
+        amplitude: parseFloat(impulseAmplitudeSlider.value),
+        impulseTime: parseFloat(impulseTimeSlider.value)
+      });
+      updateForcingDisplays();
+    }
+
     // Forcing function event listeners
     forcingSelect.addEventListener('change', updateForcingControls);
     forceSlider.addEventListener('input', updateConstantForcing);
@@ -687,6 +746,8 @@
     frequencySlider.addEventListener('input', updateCosineForcing);
     stepAmplitudeSlider.addEventListener('input', updateStepForcing);
     stepTimeSlider.addEventListener('input', updateStepForcing);
+    impulseAmplitudeSlider.addEventListener('input', updateImpulseForcing);
+    impulseTimeSlider.addEventListener('input', updateImpulseForcing);
 
     // Button event listeners
     document.getElementById('reset-btn').addEventListener('click', resetAnimation);
@@ -711,8 +772,9 @@
           // Step physics
           const state = system.step(TIME_STEP);
 
-          // Add data point to graph
+          // Add data point to graph and phase portrait
           graphData.push({ t: state.t, y: state.y });
+          phaseData.push({ y: state.y, v: state.v });
         }
 
         // Always render (even when paused, to show current state)
@@ -731,6 +793,7 @@
 
         animator.draw(springCtx, state, currentForce);
         grapher.draw(graphCtx, graphData, initialY0, forcingInfo);
+        phasePlotter.draw(phaseCtx, phaseData, initialY0, initialV0);
 
         lastTime = currentTime;
       }
