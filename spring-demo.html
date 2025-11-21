@@ -337,6 +337,7 @@
             <option value="constant">Constant (gravity-like)</option>
             <option value="cosine">Cosine: a·cos(ωt)</option>
             <option value="step">Step function</option>
+            <option value="impulse">Impulse: a·δ(t - t₀)</option>
           </select>
         </div>
 
@@ -378,6 +379,21 @@
               <span class="value-display" id="step-time-value">1.00 s</span>
             </label>
             <input type="range" id="step-time-slider" min="0" max="10" step="0.1" value="1">
+          </div>
+
+          <!-- Impulse parameters -->
+          <div id="impulse-params" style="display: none;">
+            <label class="forcing-param-label">
+              Impulse Magnitude (a):
+              <span class="value-display" id="impulse-amplitude-value">1.00 N·s</span>
+            </label>
+            <input type="range" id="impulse-amplitude-slider" min="-10" max="10" step="0.1" value="1" class="forcing-param-slider">
+
+            <label class="forcing-param-label">
+              Impulse Time (t₀):
+              <span class="value-display" id="impulse-time-value">1.00 s</span>
+            </label>
+            <input type="range" id="impulse-time-slider" min="0" max="10" step="0.1" value="1">
           </div>
         </div>
 
@@ -487,6 +503,7 @@
     const constantParams = document.getElementById('constant-params');
     const cosineParams = document.getElementById('cosine-params');
     const stepParams = document.getElementById('step-params');
+    const impulseParams = document.getElementById('impulse-params');
 
     // Forcing function parameter sliders
     const forceSlider = document.getElementById('force-slider');
@@ -494,6 +511,8 @@
     const frequencySlider = document.getElementById('frequency-slider');
     const stepAmplitudeSlider = document.getElementById('step-amplitude-slider');
     const stepTimeSlider = document.getElementById('step-time-slider');
+    const impulseAmplitudeSlider = document.getElementById('impulse-amplitude-slider');
+    const impulseTimeSlider = document.getElementById('impulse-time-slider');
 
     // Update forcing parameter displays
     function updateForcingDisplays() {
@@ -502,6 +521,8 @@
       document.getElementById('frequency-value').textContent = `${parseFloat(frequencySlider.value).toFixed(2)} Hz`;
       document.getElementById('step-amplitude-value').textContent = `${parseFloat(stepAmplitudeSlider.value).toFixed(2)} N`;
       document.getElementById('step-time-value').textContent = `${parseFloat(stepTimeSlider.value).toFixed(2)} s`;
+      document.getElementById('impulse-amplitude-value').textContent = `${parseFloat(impulseAmplitudeSlider.value).toFixed(2)} N·s`;
+      document.getElementById('impulse-time-value').textContent = `${parseFloat(impulseTimeSlider.value).toFixed(2)} s`;
     }
 
     // Show/hide forcing parameter controls based on selected forcing function
@@ -512,6 +533,7 @@
       constantParams.style.display = 'none';
       cosineParams.style.display = 'none';
       stepParams.style.display = 'none';
+      impulseParams.style.display = 'none';
 
       // Show container and appropriate parameters
       if (selectedForcing === 'none') {
@@ -536,6 +558,12 @@
           system.setForcing('step', {
             amplitude: parseFloat(stepAmplitudeSlider.value),
             stepTime: parseFloat(stepTimeSlider.value)
+          });
+        } else if (selectedForcing === 'impulse') {
+          impulseParams.style.display = 'block';
+          system.setForcing('impulse', {
+            amplitude: parseFloat(impulseAmplitudeSlider.value),
+            impulseTime: parseFloat(impulseTimeSlider.value)
           });
         }
       }
@@ -703,6 +731,14 @@
       updateForcingDisplays();
     }
 
+    function updateImpulseForcing() {
+      system.setForcing('impulse', {
+        amplitude: parseFloat(impulseAmplitudeSlider.value),
+        impulseTime: parseFloat(impulseTimeSlider.value)
+      });
+      updateForcingDisplays();
+    }
+
     // Forcing function event listeners
     forcingSelect.addEventListener('change', updateForcingControls);
     forceSlider.addEventListener('input', updateConstantForcing);
@@ -710,6 +746,8 @@
     frequencySlider.addEventListener('input', updateCosineForcing);
     stepAmplitudeSlider.addEventListener('input', updateStepForcing);
     stepTimeSlider.addEventListener('input', updateStepForcing);
+    impulseAmplitudeSlider.addEventListener('input', updateImpulseForcing);
+    impulseTimeSlider.addEventListener('input', updateImpulseForcing);
 
     // Button event listeners
     document.getElementById('reset-btn').addEventListener('click', resetAnimation);
